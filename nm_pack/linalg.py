@@ -155,3 +155,21 @@ class Matrix:
             return self.__linsolve_cramer(vec)
         else:
             raise Exception("Given solver keyword, " + solver + ", does not correspond to any solver.")
+
+    def inverse(self):
+        if(self.m != self.n):
+            raise Exception("Cannot invert a non-square matrix.")
+
+        if(abs(self.det()) < TOL):
+            raise Exception("Cannot invert matrix with zero determinant.")
+
+        res = self.copy()
+        evec = Vector([0 for _ in range(self.n)])
+
+        for i in range(self.n):
+            evec[i] = 1.0
+            inv_col = self.__linsolve_gauss(evec)
+            for j in range(self.n): res[j][i] = inv_col[j]
+            evec[i] = 0.0
+
+        return res
