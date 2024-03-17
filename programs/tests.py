@@ -23,6 +23,7 @@ np_soln = np.linalg.solve(np_mat, np_vec)
 la_vec = la.Vector(np.matrix.tolist(np_vec))
 la_soln_triv = la_mat.linsolve(la_vec, solver="gauss_trivial")
 la_soln_cram = la_mat.linsolve(la_vec, solver="cramer")
+la_soln_lu = la_mat.linsolve(la_vec, solver="lu")
 la_soln = la_mat.linsolve(la_vec)
 if(any([abs(np_soln[i] - la_soln[i]) > TOL for i in range(N)])):
     raise Exception(f"Incorrect linear equation solution.\nExpected: {np_soln}\nGot: {la_soln}")
