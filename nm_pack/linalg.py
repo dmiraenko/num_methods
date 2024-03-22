@@ -19,7 +19,7 @@ class Vector:
         self.vec[ind] = value
 
     def __str__(self) -> str:
-        return "\n".join(["| " + f"{v:10.6f}" + " |" for v in self.vec])
+        return "\n".join(["| " + f"{v:.16e}" + " |" for v in self.vec])
 
     def copy(self):
         return Vector(self.vec.copy())
@@ -144,12 +144,13 @@ class Matrix:
             # Find leading element
             mx_ind = i
             for j in range(i+1, tmat.m):
-                if(abs(tmat[idx[j]][i]) > abs(tmat[idx[i]][i])): mx_ind = j
+                if(abs(tmat[idx[j]][i]) > abs(tmat[idx[mx_ind]][i])): mx_ind = j
+            if(abs(tmat[idx[mx_ind]][i]) < TOL): raise Exception("Singular matrix in linsolve_gauss")
             idx[i], idx[mx_ind] = idx[mx_ind], idx[i]
 
             for j in range(i+1, tmat.m):
                 c = -tmat[idx[j]][i] / tmat[idx[i]][i]
-                for k in range(i, tmat.n): tmat[idx[j]][k] += c * tmat[idx[i]][k]
+                for k in range(i+1, tmat.n): tmat[idx[j]][k] += c * tmat[idx[i]][k]
                 res[idx[j]] += c * res[idx[i]]
 
         # Backward propagation
