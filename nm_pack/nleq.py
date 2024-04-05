@@ -42,7 +42,7 @@ class Function:
     #         self.args = args
 
     def diff(self, args = None):
-        if(args != None):
+        if(args == None):
             return [Function(self.fn.diff(a)) for a in self.free_symbols]
         else:
             return [Function(self.fn.diff(a)) for a in args.keys()]
@@ -80,9 +80,16 @@ class Function:
     def solve_simple_iter(self, iter_fn, x0 : list):
         pass
 
-    def solve_newton(self, x0 : list):
-        d = self.diff()
-        pass
+    def nlsolve_newton(self, x0 : float):
+        if(len(self.fn.free_symbols) != 1): raise Exception("Cannot single-variable Newton to solve multivariate equations.")
+        d = self.diff()[0]
+        x = x0
+        for iter in range(MAX_ITER):
+            dx = float(self(x) / d(x))
+            x -= dx
+            if(abs(dx) < TOL): return x
+
+        if(iter >= MAX_ITER): raise Exception("Exceeded iteration limit")
 
 class NLsys:
 

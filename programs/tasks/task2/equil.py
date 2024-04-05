@@ -79,7 +79,8 @@ if __name__ == "__main__":
     final_eqn = nleq.Function((react_eqn - prod_eqn).subs(params))
     print(final_eqn.fn)
 
-    soln = final_eqn.nlsolve_bisect(prod_max, react_min)
+    # soln = final_eqn.nlsolve_bisect(prod_max, react_min)
+    soln = final_eqn.nlsolve_newton(0.0)
     params.update({x:soln})
 
     print("Results:")
