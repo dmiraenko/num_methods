@@ -1,7 +1,6 @@
 from . import nm_utils as nm
-from sys import float_info as fi
-
-TOL = 100 * fi.epsilon
+from math import pow
+# from nm_utils import TOL
 
 class Vector:
 
@@ -23,6 +22,9 @@ class Vector:
 
     def copy(self):
         return Vector(self.vec.copy())
+
+    def len(self, p=2.0):
+        return pow(sum([pow(v, p) for v in self.vec]), 1/p)
 
 class Matrix:
 

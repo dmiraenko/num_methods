@@ -1,3 +1,7 @@
+from sys import float_info as fi
+
+TOL = 100 * fi.epsilon
+
 # Returns the product of elements in the given list
 def prod(l : list) -> float:
     v = l[0]
