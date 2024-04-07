@@ -1,7 +1,7 @@
 from . import nm_utils as nm
 from math import pow
-# from nm_utils import TOL
 
+TOL = nm.TOL
 class Vector:
 
     def __init__(self, arr):

@@ -45,7 +45,7 @@ class Function:
         if(args == None):
             return [Function(self.fn.diff(a)) for a in self.free_symbols]
         else:
-            return [Function(self.fn.diff(a)) for a in args.keys()]
+            return [Function(self.fn.diff(a)) for a in args]
 
     def nlsolve_bisect(self, a, b):
         if(len(self.fn.free_symbols) != 1): raise Exception("Cannot use bisection to solve multivariate equations.")
@@ -95,50 +95,46 @@ class NLsys:
 
     def __init__(self, funcs):
         self.neq = len(funcs)
-        args = {}
-        for f in funcs: args |= f.free_symbols
-        self.nvar = len(args)
+        vars = set()
+        for f in funcs: vars |= f.free_symbols
+        self.nvar = len(vars)
 
         # Move to solver
         if(self.neq > self.nvar): raise Exception("System is overdefined. Cannot provide solution.")
         if(self.neq < self.nvar): raise Exception("System is underdefined. Cannot provide a point-like solution.")
 
-        self.args = args
+        self.vars = sorted(list(vars), key = str)
         self.funcs = funcs
 
     def jacobian(self):
-        return [f.diff(self.args) for f in self.funcs]
+        return [f.diff(self.vars) for f in self.funcs]
 
     def jacobian_val(self, vars_vals):
-        return [[fd(vars_vals) for fd in f.diff()] for f in self.funcs]
+        return [[fd(vars_vals) for fd in f.diff(self.vars)] for f in self.funcs]
 
-    def solve_newton(self, init_cond):
-        jac = self.jacobian_val(init_cond)
-        args = init_cond.copy()
+    def solve_newton(self, init_cond, verbose = False):
+        if(set(self.vars) != set(init_cond)): raise Exception("Initial conditions' variable list does not match NL system's argument list.")
+        jac = self.jacobian()
+        x = init_cond.copy()
+
+        # Allocate vector and jacobian
+        vals = la.Vector([0.0] * self.nvar)
+        jacv = la.Matrix([[0.0] * self.nvar for _ in range(self.nvar)])
 
         for iter in range(MAX_ITER):
-            vals = la.Vector([f(init_cond) for f in self.funcs])
-            jacv = la.Matrix([[ff(args) for ff in f] for f in jac])
+            # Set vector and jacobian
+            for i in range(self.nvar):
+                vals[i] = self.funcs[i](x)
+                for j in range(self.nvar): jacv[i][j] = jac[i][j](x)
 
-            add = jacv.linsolve(vals)
+            dx = jacv.linsolve(vals)
 
-            i = 0
-            for a in args:
-                a += add[i]
-                i += 1
+            for i in range(self.nvar): x[self.vars[i]] -= dx[i]
 
-            if(add.len() < TOL): return args
+            lx = dx.len()
 
-if __name__ == "__main__":
-    a = Function('2 * x1 + x2 ** x1', order = ['x1', 'x2'])
-    print(a)
-    print(a(1, 2))
-    b = Function('2 * x1 + x2 ** x3', order = ['x1', 'x2', 'x3'])
-    print(b)
-    print(b(1, 2, 3))
-    # c = Function('2 * x1 + x3 ** x1')
-    # print(c)
-    # d = Function('2 * x1 + y ** x1')
-    # print(d)
+            if(verbose):
+                for xx in x: print(f"{xx}: ".rjust(5) + f"{x[xx]:.16e}".rjust(28))
+                print("dX norm: " + f"{lx:.16e}".rjust(22))
 
-
+            if(lx < TOL): return x
