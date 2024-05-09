@@ -32,7 +32,7 @@ if __name__ == "__main__":
     print("Chose equation: " + eqn_str)
 
     T, P, K, x = sympy.symbols("T P K x")
-    Tval = float(input("Provide temperature: "))
+    Tval = float(input(f"Provide temperature ({round(t_range[0])} - {round(t_range[1])}): "))
     if(Tval < t_range[0] or t_range[1] < Tval): raise Exception("Given temperature outside expected range.")
     Pval = float(input("Provide pressure: "))
 
@@ -79,8 +79,8 @@ if __name__ == "__main__":
     final_eqn = nleq.Function((react_eqn - prod_eqn).subs(params))
     print(final_eqn.fn)
 
-    # soln = final_eqn.nlsolve_bisect(prod_max, react_min)
-    soln = final_eqn.nlsolve_newton(0.0)
+    soln = final_eqn.nlsolve_bisect(prod_max, react_min)
+    # soln = final_eqn.nlsolve_newton(0.0)
     params.update({x:soln})
 
     print("Results:")
