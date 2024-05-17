@@ -13,8 +13,8 @@ def simpson_int(f, a, b, eps = 1e-15, check_err = False):
     I_old = float("inf")
     r = I_old
     if(check_err):
-        print("       Approximation       |             Rh            |      Rh / R(h/2)")
-        print("                           |                           |")
+        print("      Approximation       |             Rh            |      Rh / R(h/2)")
+        print("                          |                           |")
 
     while(r > eps):
         I_old = I
@@ -127,8 +127,8 @@ def var7():
     true_val = 0.534877974533517566326332843
 
     for a in range(15, 45, 5):
-        I, _, _ = simpson_int(ff, 0, a, 1e-14)
-        D, _, _ = simpson_int(ff, a, 75, 1e-14)
+        I, _, _ = simpson_int(ff, 0, a, 5e-15)
+        D, _, _ = simpson_int(ff, a, 75, 5e-15)
         print(f"a = {a}\nError = {abs(I-true_val):.16f}\nTail integral = {D:.16f}")
 
 def var8():
@@ -151,7 +151,7 @@ def var9():
 
     true_val = p2
 
-    I, _, _ = simpson_int(ff, -1.0, 1.0, 1e-12, True)
+    I, _, _ = simpson_int(ff, -1.0, 1.0, 1e-10, True)
 
 def var10():
 
@@ -175,7 +175,7 @@ def var12():
 
     true_val = 0.3926990816987241548078304229
 
-    I, _, _ = simpson_int(ff, 0.0, 1.0, 1e-14, True)
+    I, _, _ = simpson_int(ff, 0.0, 1.0, 1e-12, True)
 
 def var13():
 
@@ -231,16 +231,17 @@ def var16():
     a = 0.0
     def ff(x):
         if(x == 0):
-            return a
+            return a / p
         else:
-            return - log(1 - a * sin(x)) / sin(x)
+            return - log(1 - a * sin(x)) / (p*sin(x))
 
     aa = [0.25, 0.5, 0.75, 1 - 1e-6, 1 - 1e-9, 1 - 1e-12]
+    epss = [1e-14, 1e-14, 1e-14, 1e-12, 1e-10, 1e-10]
     for v in aa:
         a = v
         I, _ , _ = simpson_int(ff, -p2, p2, 1e-12, True)
         print(f"Results for a = {a:.12f}")
-        print(f"arcsin from integral = {I / p:.16f}")
+        print(f"arcsin from integral = {I:.16f}")
         print(f"True arcsin =          {asin(a):.16f}\n")
 
 def var17():
@@ -259,10 +260,84 @@ def var18():
 
     I, _, _ = simpson_int(ff, 0, 1, 1e-15, True)
 
+def var19():
+
+    def ff(x): return x**2*exp(-2*x)
+
+    true_val = 0.25
+
+    for a in range(15, 26):
+        I, _, _ = simpson_int(ff, 0, a, 1e-13)
+        D, _, _ = simpson_int(ff, a, 75, 1e-13)
+        print(f"a = {a}\nError = {abs(I-true_val):.16f}\nTail integral = {D:.16f}")
+
+def var20():
+    pp = 1.5
+    def ff(x):
+        if(x == 0):
+            return 0
+        else:
+            return x**3 / (exp(pp*x) - 1)
+
+    true_val = (p / pp)**4 / 15
+
+    for a in range(15, 45, 5):
+        I, _, _ = simpson_int(ff, 0, a, 1e-14)
+        D, _, _ = simpson_int(ff, a, 90, 1e-14)
+        print(f"a = {a}\nError = {abs(I-true_val):.16f}\nTail integral = {D:.16f}")
+
+def var21():
+
+    def c(t): return cos(p * t ** 2 / 2)
+    def s(t): return sin(p * t ** 2 / 2)
+
+    x = 0.0
+    print(" x           C                   S")
+    while(x <= 4.01):
+        I0, _, _ = simpson_int(c, 0.0, x, 1e-14)
+        I1, _, _ = simpson_int(s, 0.0, x, 1e-14)
+        print(f"{x:.2f} {I0:.16f} {I1:.16f}")
+        x += 0.02
+
+def var22():
+
+    def dx(t):
+        if(t == 0):
+            return 0
+        else:
+            return t**3 / (exp(t) - 1)
+
+    def d(x):
+        if(x == 0):
+            return 1
+        else:
+            I, _, _ = simpson_int(dx, 0, x, 1e-13)
+            return I * 3 / x**3
+
+    x = 0.0
+    print(" x           D")
+    while(x <= 15):
+        print(f"{x:.1f} {d(x):.16f}")
+        x += 0.1
+
+    R = 8.314472
+    theta = 658
+
+    print("\n  t             C")
+    for t in range(50, 1651, 25):
+        x = t / theta
+        D = d(x)
+        C = 3 * R * (4 * D - 3 * x / (exp(x) - 1))
+
+        print(f"{t}".rjust(5) + f"  {C:.16f}")
+
+
+
+
 vars = [
     var1, var2, var3, var4, var5, var6, var7, var8, var9, var10, # 1, 9 и 10 надо доделать!
-    var11, var12, var13, var14, var15, var16, var17, var18#, var19, var20,
-    # var21, var22
+    var11, var12, var13, var14, var15, var16, var17, var18, var19, var20,
+    var21, var22
 ]
 
 v = int(input("Input variant: "))
